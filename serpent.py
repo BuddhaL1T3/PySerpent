@@ -21,36 +21,67 @@ img = pygame.image.load('snakehead.png')
 clock = pygame.time.Clock()
 
 block_size = 10
-FPS = 30
+FPS = 20
 
-font = pygame.font.SysFont(None, 25)
+direction = 'right'
+
+smFont = pygame.font.SysFont('comicsansms', 25)
+medFont = pygame.font.SysFont('comicsansms', 50)
+lgFont = pygame.font.SysFont('comicsansms', 80)
+
+def game_intro():
+  intro = True
+  while intro:
+    gameDispaly.fill(white)
+    message_to_screen('Wlecome to Serpent', green, -150, 'large')
+    message_to_screen('The objective of the game is ti eat as many apples as possible!', black, -30, 'small')
+    message_to_screen('The more apples you eat, the longer you get', black, 10, 'small')
+    message_to_screen('But, be careful... If you run into yourself, or the walls, you will DIE!', black, 50, 'small')
+    pygame.display.update()
+    clock.tick()
 
 def snake(block_size, snakeList):
-  for XnY in snakeList:
+  if direction == 'right':
+    head = pygame.transform.rotate(img, 270)
+  if direction == 'left':
+    head = pygame.transform.rotate(img, 90)
+  if direction == 'up':
+    head = img
+  if direction == 'down':
+    head = pygame.transform.rotate(img, 180)
+
+  gameDispaly.blit(head,(snakeList[-1] [0], snakeList[-1][1]))
+
+  for XnY in snakeList[:-1]:
     pygame.draw.rect(gameDispaly, blue, [XnY[0], XnY[1], block_size, block_size])
 
-def text_objs(text, color):
-  textSurface = font.render(text, True, color)
+def text_objs(text, color, size):
+  if size == 'small':
+    textSurface = smFont.render(text, True, color)
+  elif size == 'medium':
+    textSurface = medFont.render(text, True, color)
+  elif size == 'large':
+    textSurface = lgFont.render(text, True, color)
+
   return textSurface, textSurface.get_rect()
 
-def message_to_screen(msg, color):
-  textSurf, textRect = text_objs(msg,color)
-  # screen_text = font.render(msg, True, color)
-  # gameDispaly.blit(screen_text, [display_width/2, display_height/2])
-  textRect.center = (display_width/2), (display_height/2)
+def message_to_screen(msg, color, y_displace=0, size='small'):
+  textSurf, textRect = text_objs(msg, color, size)
+  textRect.center = (display_width/2), (display_height/2) + y_displace
   gameDispaly.blit(textSurf, textRect)
 
 
 
 def gameLoop():
-
+  global direction
+  direction = 'right'
   gameExit = False
   gameOver = False
 
   lead_x = display_width/2
   lead_y = display_height/2
 
-  lead_x_change = 0
+  lead_x_change = 10
   lead_y_change = 0
 
   snakeList = []
@@ -63,10 +94,14 @@ def gameLoop():
 
     while gameOver:
       gameDispaly.fill(white)
-      message_to_screen('Game over, press "C" to continue or "Q" to quit.', red)
+      message_to_screen('Game over!', red, -50, 'large')
+      message_to_screen('press "C" to continue or "Q" to quit.', black, 50, 'small')
       pygame.display.update()
 
       for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+          gameOver = False
+          gameExit = True
         if event.type == pygame.KEYDOWN:
           if event.key == pygame.K_q:
             gameExit = True
@@ -79,26 +114,24 @@ def gameLoop():
         gameExit = True
       if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_LEFT:
+          direction = 'left'
           lead_x_change = -block_size
           lead_y_change = 0
         elif event.key == pygame.K_RIGHT:
+          direction = 'right'
           lead_x_change = block_size
           lead_y_change = 0
         elif event.key == pygame.K_UP:
+          direction = 'up'
           lead_y_change = -block_size
           lead_x_change = 0
         elif event.key == pygame.K_DOWN:
+          direction = 'down'
           lead_y_change = block_size
           lead_x_change = 0
-
-      # if event.type == pygame.KEYUP:
-      #   if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-      #     lead_x_change = 0
-      #   if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-      #     lead_y_change = 0
-
-      if lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0:
-        gameOver = True
+ 
+    if lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0:
+      gameOver = True
 
     lead_x += lead_x_change  
     lead_y += lead_y_change    
@@ -132,4 +165,5 @@ def gameLoop():
   pygame.quit()
   quit()
 
+game_intro()
 gameLoop()
