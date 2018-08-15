@@ -16,7 +16,10 @@ display_height = 600
 gameDispaly = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Serpent')
 
-img = pygame.image.load('snakehead.png')
+icon = pygame.image.load('apple.png')
+pygame.display.set_icon(icon)
+snakeHead = pygame.image.load('snakehead.png')
+apple = pygame.image.load('apple.png')
 
 clock = pygame.time.Clock()
 
@@ -32,23 +35,39 @@ lgFont = pygame.font.SysFont('comicsansms', 80)
 def game_intro():
   intro = True
   while intro:
+
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        quit()
+
+      if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_c:
+          intro = False
+        if event.key == pygame.K_q:
+          pygame.quit()
+          quit()
+
     gameDispaly.fill(white)
     message_to_screen('Wlecome to Serpent', green, -150, 'large')
     message_to_screen('The objective of the game is ti eat as many apples as possible!', black, -30, 'small')
     message_to_screen('The more apples you eat, the longer you get', black, 10, 'small')
     message_to_screen('But, be careful... If you run into yourself, or the walls, you will DIE!', black, 50, 'small')
+
+    message_to_screen('press "C" to play or "Q" to quit.', black, 180, 'small')
+
     pygame.display.update()
-    clock.tick()
+    clock.tick(5)
 
 def snake(block_size, snakeList):
   if direction == 'right':
-    head = pygame.transform.rotate(img, 270)
+    head = pygame.transform.rotate(snakeHead, 270)
   if direction == 'left':
-    head = pygame.transform.rotate(img, 90)
+    head = pygame.transform.rotate(snakeHead, 90)
   if direction == 'up':
-    head = img
+    head = snakeHead
   if direction == 'down':
-    head = pygame.transform.rotate(img, 180)
+    head = pygame.transform.rotate(snakeHead, 180)
 
   gameDispaly.blit(head,(snakeList[-1] [0], snakeList[-1][1]))
 
@@ -137,7 +156,8 @@ def gameLoop():
     lead_y += lead_y_change    
     
     gameDispaly.fill(white)
-    pygame.draw.rect(gameDispaly, red, [randAppleX, randAppleY, block_size, block_size])    
+    gameDispaly.blit(apple,(randAppleX, randAppleY))
+    # pygame.draw.rect(gameDispaly, red, [randAppleX, randAppleY, block_size, block_size])    
     
     snakeHead = []
     snakeHead.append(lead_x)
