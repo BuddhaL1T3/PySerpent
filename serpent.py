@@ -2,6 +2,8 @@ import pygame
 import time
 import random
 
+# print(dir(pygame))
+
 pygame.init()
 
 white = (255, 255, 255)
@@ -9,11 +11,12 @@ black = (0, 0, 0)
 red = (255, 0, 0)
 green = (0, 155, 0)
 blue = (0, 0, 155)
+gray = (195, 195, 195)
 
 display_width = 800
 display_height = 600
 
-gameDispaly = pygame.display.set_mode((display_width, display_height))
+gameDisplay = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Serpent')
 
 icon = pygame.image.load('appleicon.png')
@@ -26,11 +29,48 @@ clock = pygame.time.Clock()
 block_size = 10
 FPS = 20
 
+highScore = 0
 direction = 'right'
 
 smFont = pygame.font.SysFont('comicsansms', 25)
 medFont = pygame.font.SysFont('comicsansms', 50)
 lgFont = pygame.font.SysFont('comicsansms', 80)
+
+def pause():
+  paused = True
+
+  while paused:
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        quit()
+      if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_SPACE:
+          paused = False
+        elif event.key == pygame.K_ESCAPE:
+          pygame.quit()
+          quit()
+    
+    gameDisplay.fill(gray)
+    message_to_screen('Paused', black, -100, 'large')
+    message_to_screen('Press "Space-bar" to continue or "Esc" to quit.', black, 25, 'small')
+    
+    pygame.display.update()
+    clock.tick(5)
+
+def score(score):
+  text = smFont.render('Score: '+str(score), True, black)
+  gameDisplay.blit(text, [0, 0])
+
+# def highestScore(score):
+#   text = smFont.render('High-Score: '+str(score), True, black)
+#   gameDisplay.blit(text, [0, 30])
+ 
+def randAppleGen():
+  randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
+  randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
+
+  return randAppleX,randAppleY
 
 def game_intro():
   intro = True
@@ -42,19 +82,19 @@ def game_intro():
         quit()
 
       if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_c:
+        if event.key == pygame.K_SPACE:
           intro = False
-        if event.key == pygame.K_q:
-          pygame.quit()
-          quit()
+        elif event.key == pygame.K_ESCAPE:
+          gameExit = True
+          gameOver = False
 
-    gameDispaly.fill(white)
-    message_to_screen('Wlecome to Serpent', green, -150, 'large')
-    message_to_screen('The objective of the game is ti eat as many apples as possible!', black, -30, 'small')
-    message_to_screen('The more apples you eat, the longer you get', black, 10, 'small')
-    message_to_screen('But, be careful... If you run into yourself, or the walls, you will DIE!', black, 50, 'small')
-
-    message_to_screen('press "C" to play or "Q" to quit.', black, 180, 'small')
+    gameDisplay.fill(gray)
+    message_to_screen('Welcome to Serpent', green, -150, 'large')
+    message_to_screen('The objective of the game is to eat as many apples as possible!', black, -30, 'small')
+    message_to_screen('The more apples you eat, the longer you get.', black, 10, 'small')
+    message_to_screen('But, be careful... If you run into yourself, or the walls, you will die.', black, 50, 'small')
+    message_to_screen('During game play, press "Space-bar" to pause.', black, 90, 'small')
+    message_to_screen('Press "Space-bar" to continue or "Esc" to quit.', black, 180, 'small')
 
     pygame.display.update()
     clock.tick(5)
@@ -69,10 +109,10 @@ def snake(block_size, snakeList):
   if direction == 'down':
     head = pygame.transform.rotate(snakeHead, 180)
 
-  gameDispaly.blit(head,(snakeList[-1] [0], snakeList[-1][1]))
+  gameDisplay.blit(head,(snakeList[-1] [0], snakeList[-1][1]))
 
   for XnY in snakeList[:-1]:
-    pygame.draw.rect(gameDispaly, blue, [XnY[0], XnY[1], block_size, block_size])
+    pygame.draw.rect(gameDisplay, blue, [XnY[0], XnY[1], block_size, block_size])
 
 def text_objs(text, color, size):
   if size == 'small':
@@ -87,13 +127,12 @@ def text_objs(text, color, size):
 def message_to_screen(msg, color, y_displace=0, size='small'):
   textSurf, textRect = text_objs(msg, color, size)
   textRect.center = (display_width/2), (display_height/2) + y_displace
-  gameDispaly.blit(textSurf, textRect)
-
-
+  gameDisplay.blit(textSurf, textRect)
 
 def gameLoop():
   global direction
-  direction = 'right'
+  direction = 'right' 
+  
   gameExit = False
   gameOver = False
 
@@ -106,15 +145,14 @@ def gameLoop():
   snakeList = []
   snakeLength = 1
 
-  randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
-  randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
+  randAppleX, randAppleY = randAppleGen()
 
   while not gameExit:
 
     while gameOver:
-      gameDispaly.fill(white)
+      gameDisplay.fill(gray)
       message_to_screen('Game over!', red, -50, 'large')
-      message_to_screen('press "C" to continue or "Q" to quit.', black, 50, 'small')
+      message_to_screen('Press "Space-bar" to continue or "Esc" to quit.', black, 50, 'small')
       pygame.display.update()
 
       for event in pygame.event.get():
@@ -122,10 +160,10 @@ def gameLoop():
           gameOver = False
           gameExit = True
         if event.type == pygame.KEYDOWN:
-          if event.key == pygame.K_q:
+          if event.key == pygame.K_ESCAPE:
             gameExit = True
             gameOver = False
-          if event.key == pygame.K_c:
+          if event.key == pygame.K_SPACE:
             gameLoop()
 
     for event in pygame.event.get():
@@ -148,6 +186,11 @@ def gameLoop():
           direction = 'down'
           lead_y_change = block_size
           lead_x_change = 0
+        elif event.key == pygame.K_SPACE:
+          pause()
+        elif event.key == pygame.K_ESCAPE:
+          gameExit = True
+          gameOver = False
  
     if lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0:
       gameOver = True
@@ -155,9 +198,8 @@ def gameLoop():
     lead_x += lead_x_change  
     lead_y += lead_y_change    
     
-    gameDispaly.fill(white)
-    gameDispaly.blit(apple,(randAppleX, randAppleY))
-    # pygame.draw.rect(gameDispaly, red, [randAppleX, randAppleY, block_size, block_size])    
+    gameDisplay.fill(gray)
+    gameDisplay.blit(apple,(randAppleX, randAppleY))
     
     snakeHead = []
     snakeHead.append(lead_x)
@@ -172,16 +214,20 @@ def gameLoop():
         gameOver= True
 
     snake(block_size, snakeList)
+    score(snakeLength-1)
+
+    # if snakeLength-1 >= highScore:
+    #   highestScore(snakeLength-1)
+    # highScore = snakeLength-1
     
     pygame.display.update()
     
     if lead_x == randAppleX and lead_y == randAppleY:
-      randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
-      randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
+      randAppleX, randAppleY = randAppleGen()
       snakeLength += 1
     
     clock.tick(FPS)
-
+  
   pygame.quit()
   quit()
 
