@@ -16,6 +16,8 @@ display_height = 600
 gameDispaly = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Serpent')
 
+img = pygame.image.load('snakehead.png')
+
 clock = pygame.time.Clock()
 
 block_size = 10
@@ -27,7 +29,7 @@ def snake(block_size, snakeList):
   for XnY in snakeList:
     pygame.draw.rect(gameDispaly, blue, [XnY[0], XnY[1], block_size, block_size])
 
-def text_objs(text, color)
+def text_objs(text, color):
   textSurface = font.render(text, True, color)
   return textSurface, textSurface.get_rect()
 
