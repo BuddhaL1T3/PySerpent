@@ -16,7 +16,7 @@ display_height = 600
 gameDispaly = pygame.display.set_mode((display_width, display_height))
 pygame.display.set_caption('Serpent')
 
-icon = pygame.image.load('apple.png')
+icon = pygame.image.load('appleicon.png')
 pygame.display.set_icon(icon)
 snakeHead = pygame.image.load('snakehead.png')
 apple = pygame.image.load('apple.png')
