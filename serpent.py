@@ -2,8 +2,6 @@ import pygame
 import time
 import random
 
-# print(dir(pygame))
-
 pygame.init()
 
 white = (255, 255, 255)
@@ -29,7 +27,7 @@ clock = pygame.time.Clock()
 block_size = 10
 FPS = 20
 
-highScore = 0
+# highScore = 0
 direction = 'right'
 
 smFont = pygame.font.SysFont('comicsansms', 25)
@@ -38,7 +36,10 @@ lgFont = pygame.font.SysFont('comicsansms', 80)
 
 def pause():
   paused = True
-
+  message_to_screen('Paused', black, -100, 'large')
+  message_to_screen('Press "Space-bar" to continue or "Esc" to quit.', black, 25, 'small')
+  
+  pygame.display.update()
   while paused:
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
@@ -50,13 +51,6 @@ def pause():
         elif event.key == pygame.K_ESCAPE:
           pygame.quit()
           quit()
-    
-    gameDisplay.fill(gray)
-    message_to_screen('Paused', black, -100, 'large')
-    message_to_screen('Press "Space-bar" to continue or "Esc" to quit.', black, 25, 'small')
-    
-    pygame.display.update()
-    clock.tick(5)
 
 def score(score):
   text = smFont.render('Score: '+str(score), True, black)
@@ -153,6 +147,7 @@ def gameLoop():
       gameDisplay.fill(gray)
       message_to_screen('Game over!', red, -50, 'large')
       message_to_screen('Press "Space-bar" to continue or "Esc" to quit.', black, 50, 'small')
+      score(snakeLength - 1)
       pygame.display.update()
 
       for event in pygame.event.get():
